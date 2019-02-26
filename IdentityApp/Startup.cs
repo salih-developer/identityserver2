@@ -15,6 +15,9 @@ using IdentityApp.Services;
 
 namespace IdentityApp
 {
+    using Microsoft.AspNetCore.Authentication.Cookies;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Identity;
     public class Startup
     {
         public Startup(IHostingEnvironment env)
@@ -53,8 +56,14 @@ namespace IdentityApp
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
 
-            services.AddIdentityServer()
-                .AddTemporarySigningCredential()
+            services.AddIdentityServer(
+                                       options =>
+                                       {
+                                           options.Authentication.CookieAuthenticationScheme = "Identity.Application"; 
+                                           options.Caching.ClientStoreExpiration=TimeSpan.FromDays(1);
+                                           
+                                       })
+                .AddDeveloperSigningCredential(filename: "tempkey.rsa")
                 .AddInMemoryPersistedGrants()
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApiResources())
@@ -80,9 +89,7 @@ namespace IdentityApp
             }
 
             app.UseStaticFiles();
-
-            app.UseIdentity();
-
+            
             app.UseIdentityServer();
 
             app.UseMvc(routes =>
