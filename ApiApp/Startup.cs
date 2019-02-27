@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 
 namespace ApiApp
 {
+    using IdentityServer4.AccessTokenValidation;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
     public class Startup
     {
         public Startup(IHostingEnvironment env)
@@ -29,6 +31,26 @@ namespace ApiApp
         {
             // Add framework services.
             services.AddMvc();
+            //services.AddAuthentication().AddIdentityServerAuthentication(
+            //                                                             options =>
+            //                                                             {
+            //                                                                 options.Authority = "http://localhost:5000";
+            //                                                                 options.RequireHttpsMetadata = false;
+            //                                                                 options.ApiName = "apiApp";
+            //                                                             });
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(o =>
+            {
+                o.Authority = "http://localhost:5000";
+                o.Audience = "apiApp";
+                o.RequireHttpsMetadata = false;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,13 +59,13 @@ namespace ApiApp
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
-            {
-                Authority = "http://localhost:5000",
-                RequireHttpsMetadata = false,
-                ApiName = "apiApp"
-            });
-
+            //app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+            //{
+            //    Authority = "http://localhost:5000",
+            //    RequireHttpsMetadata = false,
+            //    ApiName = "apiApp"
+            //});
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
