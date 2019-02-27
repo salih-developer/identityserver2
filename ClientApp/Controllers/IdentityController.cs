@@ -23,7 +23,7 @@ namespace ClientApp.Controllers
 
         private async Task<HttpResponseMessage> ApiCallUsingUserAccessToken()
         {
-            var accessToken = await HttpContext.Authentication.GetTokenAsync("access_token");
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
 
             var client = new HttpClient();
             client.SetBearerToken(accessToken);

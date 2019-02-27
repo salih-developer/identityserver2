@@ -31,6 +31,25 @@ namespace WebApplicationBasic
         {
             // Add framework services.
             services.AddMvc();
+            services.AddAuthentication(options =>
+                     {
+                         options.DefaultScheme = "Cookies";
+                         options.DefaultChallengeScheme = "oidc";
+                     })
+                    .AddCookie("Cookies")
+                    .AddOpenIdConnect("oidc", options =>
+                     {
+                         options.SignInScheme = "Cookies";
+                         options.Authority = "http://localhost:5000";
+                         options.RequireHttpsMetadata = false;
+                         options.ClientId = "mvc";
+                         options.ClientSecret = "secret";
+                         options.ResponseType = "code id_token";
+                         options.SaveTokens = true;
+                         options.GetClaimsFromUserInfoEndpoint = true;
+                         options.Scope.Add("apiApp");
+                         options.Scope.Add("offline_access");
+                     });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,28 +72,28 @@ namespace WebApplicationBasic
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
-                AuthenticationScheme = "Cookies"
-            });
+            //app.UseCookieAuthentication(new CookieAuthenticationOptions
+            //{
+            //    AuthenticationScheme = "Cookies"
+            //});
 
-            app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
-            {
-                AuthenticationScheme = "oidc",
-                SignInScheme = "Cookies",
+            //app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
+            //{
+            //    AuthenticationScheme = "oidc",
+            //    SignInScheme = "Cookies",
 
-                Authority = "http://localhost:5000",
-                RequireHttpsMetadata = false,
+            //    Authority = "http://localhost:5000",
+            //    RequireHttpsMetadata = false,
 
-                ClientId = "mvc",
-                ClientSecret = "secret",
+            //    ClientId = "mvc",
+            //    ClientSecret = "secret",
 
-                ResponseType = "code id_token",
-                Scope = { "apiApp", "offline_access" },
+            //    ResponseType = "code id_token",
+            //    Scope = { "apiApp", "offline_access" },
 
-                GetClaimsFromUserInfoEndpoint = true,
-                SaveTokens = true
-            });
+            //    GetClaimsFromUserInfoEndpoint = true,
+            //    SaveTokens = true
+            //});
 
             app.UseStaticFiles();
 
